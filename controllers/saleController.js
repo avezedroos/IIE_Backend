@@ -2,11 +2,29 @@ const Sale = require("../models/Sale");
 
 // @desc Create Sale
 exports.createSale = async (req, res, next) => {
-  console.log("new sale",req.body)
+  console.log("new sale", req.body)
+  const { clientId } = req.body;
+
   try {
     const sale = await Sale.create(req.body);
-    res.status(201).json(sale);
+    res.status(201).json({
+      message: "Created",
+      clientId,
+      newID: sale._id
+    });
   } catch (error) {
+    // 🔥 Duplicate key error
+    if (error.code === 11000) {
+      // 🔍 Check if already exists
+      const existingSale = await Sale.findOne({ clientId });
+      if (existingSale) {
+        return res.status(200).json({
+          message: "Already exists",
+          clientId,
+          serverId: existingSale._id,
+        });
+      }
+    }
     next(error);
   }
 };
