@@ -30,20 +30,46 @@ const saleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    // mangoVariety: {
-    //   type: String,
-    //   required: true,
-    //   enum: ["Hapus", "payri", "raiwal","Other"],
-    // },
   
 
     // ✅ NEW
      paymentMethod: {
       type: String,
-      enum: ["Cash", "Online", "Udhar", "Partial Amount"],
+      enum: ["Cash", "Online", "Udhar", "Partial Amount", "Online + Cash"],
       default: "Cash",
     },
+
+    // ✅ NEW FIELD (direct add)
+    paymentDetails: {
+      online: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      cash: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      udhar: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      onlineAccount: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+    },
+
+    Discount:{
+      type: Number,
+      default: 0,
+    },
+    
+    location: { type: String,
+      required: true,},
 
     items: [itemSchema],
 
@@ -52,10 +78,6 @@ const saleSchema = new mongoose.Schema(
       default: 0,
     },
 
-partialAmount: {
-      type: Number,
-      default: 0,
-    },
 
     date: {
       type: Date,
