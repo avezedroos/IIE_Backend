@@ -1,30 +1,70 @@
 const Sale = require("../models/Sale");
 
 // @desc Create Sale
+// exports.createSale = async (req, res, next) => {
+//   console.log("new sale", req.body)
+//   const { clientId } = req.body;
+
+//   try {
+//     const sale = await Sale.create(req.body);
+//     res.status(201).json({
+//       message: "Created",
+//       clientId,
+//       newID: sale._id
+//     });
+//   } catch (error) {
+//     // 🔥 Duplicate key error
+//     if (error.code === 11000) {
+//       // 🔍 Check if already exists
+//       const existingSale = await Sale.findOne({ clientId });
+//       if (existingSale) {
+//         return res.status(200).json({
+//           message: "Already exists",
+//           clientId,
+//           serverId: existingSale._id,
+//         });
+//       }
+//     }
+//     next(error);
+//   }
+// };
+
+
+
+// @desc Create or Update Sale (Upsert)
 exports.createSale = async (req, res, next) => {
-  console.log("new sale", req.body)
   const { clientId } = req.body;
 
   try {
-    const sale = await Sale.create(req.body);
-    res.status(201).json({
-      message: "Created",
-      clientId,
-      newID: sale._id
-    });
-  } catch (error) {
-    // 🔥 Duplicate key error
-    if (error.code === 11000) {
-      // 🔍 Check if already exists
+    if (clientId) {
       const existingSale = await Sale.findOne({ clientId });
+
       if (existingSale) {
+        // 🔥 Update existing sale
+        const updatedSale = await Sale.findOneAndUpdate(
+          { clientId },
+          { ...req.body },
+          { new: true }
+        );
+
         return res.status(200).json({
-          message: "Already exists",
+          message: "Updated",
           clientId,
-          serverId: existingSale._id,
+          serverId: updatedSale._id,
         });
       }
     }
+
+    // 🆕 Create new sale
+    const newSale = await Sale.create(req.body);
+
+    res.status(201).json({
+      message: "Created",
+      clientId: newSale.clientId,
+      serverId: newSale._id,
+    });
+
+  } catch (error) {
     next(error);
   }
 };
